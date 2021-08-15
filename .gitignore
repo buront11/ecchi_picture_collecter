@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# chromedriver is not permit to save.
+chromedriver
+
+# img data is big
+/img/*
+
+launch.json
+.DS_Store
