@@ -136,3 +136,5 @@ chromedriver
 
 launch.json
 .DS_Store
+
+*.png

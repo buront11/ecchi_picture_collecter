@@ -19,9 +19,9 @@ class EIDataset(Dataset):
         df = pd.read_csv(csv_path)
         self.image_paths = df['path']
         # リストが文字列になるのでリストに再変換
-        self.labels = [ast.literal_eval(d) for d in df['label']]
+        self.labels = torch.tensor([ast.literal_eval(d) for d in df['label']])
         self.transform = transforms.Compose(
-            [transforms.Resize(256), transforms.Grayscale(), transforms.ToTensor()]
+            [transforms.Resize((256,256)), transforms.Grayscale(), transforms.ToTensor()]
         )
 
     def __len__(self):
