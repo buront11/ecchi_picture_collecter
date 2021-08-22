@@ -65,14 +65,12 @@ def main():
 
     driver.get("https://nijie.info/login.php")
     print('Email : ', end='')
-    login_user = input()
-    print('¥n')
+    login_user = 'manmami.a.mario@gmail.com'
     print('Password : ', end='')
-    login_pass = input()
-    print('¥n')
+    login_pass = 'yosiki2227'
 
     # 各タグごとの持ってくる画像の上限枚数
-    image_limit = 3
+    image_limit = 500
 
     time.sleep(5)
 
@@ -106,7 +104,7 @@ def main():
         print('---------------')
         image_limit_flag = False
         img_counter = 0
-        url = "http://nijie.info/search.php?type=&word="+search_tag+"&p=1&mode=&illust_type=1&sort=1&pd=&con="
+        url = "http://nijie.info/search.php?type=&word="+search_tag+"&p=1&mode=&illust_type=1&sort=2&pd=&con="
         driver.get(url)
         
         while True:
@@ -119,7 +117,8 @@ def main():
             divs = soup.find_all('div', class_='picture')
             for div in divs:
                 urls.append(div.find('a'))
-            for url in urls:
+            # ベスト３作品を排除
+            for url in urls[:-3]:
                 time.sleep(random.randrange(5,15))
                 href  = url.get("href")
                 img_url = requests.get('http://nijie.info'+href)
@@ -164,7 +163,7 @@ def main():
         #     print(img_tags)
         #     dd
     df = pd.DataFrame(images_info,columns=columns)
-    df.to_csv('img/labels.csv')
+    df.to_csv('img/untreated_labels.csv', index=False)
     driver.quit()
 
 if __name__=='__main__':
