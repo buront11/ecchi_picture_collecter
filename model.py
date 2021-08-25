@@ -75,6 +75,6 @@ class VGG(nn.Module):
         x = self.dropout1(x)
         x = F.relu(self.fc2(x))
         x = self.dropout2(x)
-        x = self.sigmoid(self.fc3(x))
+        x = self.fc3(x)
 
         return x

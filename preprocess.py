@@ -7,7 +7,8 @@ import pandas as pd
 
 def check_hash(pre_hash, re_hash):
     for pre, re in zip(pre_hash, re_hash):
-        if pre != re:
+        hash_value = pre - re
+        if hash_value != 0:
             return False
     
     return True
@@ -31,8 +32,7 @@ def solve_deplicate():
         d_hash = imagehash.dhash(img)
         w_hash = imagehash.whash(img)
         hashes.append([ave_hash, p_hash, d_hash, w_hash])
-    print('Broken images')
-    print(drop_index)
+    print('Broken images num: {}'.format(len(drop_index)))
     
     print('check same image...')
     for pre_index, pre_hash in tqdm(enumerate(hashes[:-1])):
@@ -45,6 +45,7 @@ def solve_deplicate():
                 drop_index.append(re_index)
             
     # 念の為listを一度uniqueに
+    print('Drop image num: {}'.format(len(drop_index)))
     drop_index = sorted(list(set(drop_index)))
     data_list = data_list.drop(data_list.index[drop_index])
     data_list.to_csv('./img/labels.csv', index=False)

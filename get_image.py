@@ -58,7 +58,7 @@ def main():
     options.add_argument("--proxy-server='direct://'")
     options.add_argument("--proxy-bypass-list=*")
     options.add_argument('--start-maximized')
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
 
     # ブラウザの起動
     driver = webdriver.Chrome(executable_path='./chromedriver',chrome_options=options)
@@ -70,7 +70,7 @@ def main():
     login_pass = 'yosiki2227'
 
     # 各タグごとの持ってくる画像の上限枚数
-    image_limit = 500
+    image_limit = 1000
 
     time.sleep(5)
 
@@ -119,7 +119,7 @@ def main():
                 urls.append(div.find('a'))
             # ベスト３作品を排除
             for url in urls[:-3]:
-                time.sleep(random.randrange(5,15))
+                time.sleep(random.randrange(5,10))
                 href  = url.get("href")
                 img_url = requests.get('http://nijie.info'+href)
                 img_soup = BeautifulSoup(img_url.content, 'html.parser')
@@ -153,9 +153,9 @@ def main():
                 break
 
             # page遷移
-            if driver.find_element_by_class_name('right'):
+            try:
                 element = driver.find_element_by_class_name('right').click()
-            else:
+            except:
                 break
         # elements = driver.find_elements_by_class_name("clearfix")
         # for element in elements:

@@ -30,6 +30,7 @@ def visualize(epoch, train_, valid_, figname):
     plt.legend()
 
     plt.savefig(figname + '.png')
+    plt.close()
 
 def train():
 
@@ -41,8 +42,8 @@ def train():
     valid_dataloader = DataLoader(valid_dataset, batch_size=1, shuffle=False)
 
     vgg = VGG().to(device)
-    optimizer = optim.Adam(vgg.parameters(), lr=0.001)
-    criterion = nn.BCELoss()
+    optimizer = optim.SGD(vgg.parameters(), lr=0.001, momentum=0.9)
+    criterion = nn.BCEWithLogitsLoss()
 
     epochs = 10
     epoch_list = []
