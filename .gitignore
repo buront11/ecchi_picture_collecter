@@ -133,9 +133,13 @@ chromedriver
 
 # img data is big
 /img/*
+/test_img/*
 
 launch.json
+result.json
 .DS_Store
+.vscode
 
 *.png
+best_model
 log

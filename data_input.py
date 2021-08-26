@@ -10,28 +10,39 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 from PIL import Image
+from torchvision.transforms.transforms import RandomHorizontalFlip
 
 # ecchi image dataset
 class EIDataset(Dataset):
-    def __init__(self, csv_path):
+    def __init__(self, df, data_type):
         super(EIDataset, self).__init__()
 
-        df = pd.read_csv(csv_path)
-        self.image_paths = df['path']
+        self.df = df
+        self.image_paths = df['path'].values.tolist()
+
         # リストが文字列になるのでリストに再変換
-        self.labels = torch.tensor([ast.literal_eval(d) for d in df['label']])
-        self.transform = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
+        self.labels = torch.tensor([ast.literal_eval(d) for d in self.df['label']])
+        if data_type == 'train':
+            self.transform = transforms.Compose([
+                # transforms.RandomHorizontalFlip(),
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            ])
+        elif data_type == 'valid':
+            self.transform = transforms.Compose([
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            ])
 
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, index):
-        out_data = Image.open(self.image_paths[index])
+        out_data = Image.open(self.image_paths[index]).convert('RGB')
         out_label = self.labels[index]
 
         if self.transform:

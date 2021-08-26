@@ -2,6 +2,7 @@ import glob
 from tqdm import tqdm
 import imagehash
 from PIL import Image, ImageChops
+from natsort import natsorted
 
 import pandas as pd
 
@@ -16,7 +17,7 @@ def check_hash(pre_hash, re_hash):
 def solve_deplicate():
     data_list = pd.read_csv('./img/untreated_labels.csv')
 
-    files = glob.glob('./img/*.jpg')
+    files = natsorted(glob.glob('./img/*.jpg'))
     hashes = []
     drop_index = []
     # 各画像のhash値を導出
@@ -26,6 +27,7 @@ def solve_deplicate():
         try:
             img = Image.open(file)
         except:
+            print('Broken img number: {}'.format(index))
             drop_index.append(index)
         ave_hash = imagehash.average_hash(img)
         p_hash = imagehash.phash(img)

@@ -2,6 +2,8 @@ import time
 import re
 import csv
 import json
+import urllib
+import math
 import random
 import pandas as pd
 from bs4.element import ResultSet, TemplateString
@@ -21,9 +23,39 @@ from selenium.common.exceptions import TimeoutException
 
 import utils
 
+PROXY = {
+        'http':'http://proxy.nagaokaut.ac.jp:8080',
+        'https':'http://proxy.nagaokaut.ac.jp:8080'
+    }
+
 class ImageTypeError(Exception):
     """画像のtypeが選択されていないことを知らせる例外クラス"""
     pass
+
+def download(uri, save_path):
+    print("Downloading from " + uri)
+    proxy_support = urllib.request.ProxyHandler(PROXY)
+    opener = urllib.request.build_opener(proxy_support)
+    urllib.request.install_opener(opener)
+    img_data = urllib.request.urlopen(uri).read()
+    uri_list = uri.split("/")
+    file_name = uri_list[len(uri_list) - 1]
+    with open(save_path + "/" + file_name, mode="wb") as f:
+        f.write(img_data)
+        print("Saved to " + save_path + "/" + file_name + ".")
+
+def fetch(data, save_path, cnt, total, limit):
+    if limit and cnt > limit:
+        return
+    for value in data:
+        if limit and cnt > limit:
+            break
+        image = value["webformatURL"] # imageURL(オリジナルサイズ), webformatURL(640px), largeImageURL(1280px), fullHDURL(1920px)などがある。
+        print(str(cnt) + "/" + str(total))
+        cnt = cnt + 1
+        time.sleep(5)
+        download(image, save_path)
+    return cnt
 
 def transition_page(driver, current_url):
     # ページ遷移ボタンがnav tagなのでnav要素をget
@@ -50,7 +82,7 @@ def tag2binary(image_tags, search_tags):
     binary_list = [1 if i in image_tags else 0 for i in search_tags]
     return binary_list
 
-def main():
+def ecchi():
     # Seleniumをあらゆる環境で起動させるChromeオプション
     options = Options()
     options.add_argument('--disable-gpu')
@@ -166,5 +198,68 @@ def main():
     df.to_csv('img/untreated_labels.csv', index=False)
     driver.quit()
 
+def no_ecchi():
+    api_key = "23096309-fb0bf9c1e4635b19578c1362c" #PixabayのAPIキーを記述
+
+    print("Pixabayから画像をダウンロードするプログラム。")
+    with open('no_ecchi_tag.csv', 'r') as f:
+        reader = csv.reader(f)
+        keywords = [row for row in reader][0]
+
+    image_limit = 2500
+    each_images = image_limit//len(keywords)
+
+    for keyword in keywords:
+
+        page = 1
+        per_page = 200
+        limit = each_images # ここで設定した枚数までしかダウンロードしない。0の場合は無制限。
+
+        uri = "https://pixabay.com/api/"
+
+        prms = {
+            "key" : api_key,
+            "q" : keyword,
+            "lang" : "ja", #デフォルトはen
+            "image_type" : "all", #all, photo, illustration, vector
+            "orientation" : "all", #all, horizontal, vertical
+            "category" : "", # fashion, nature, backgrounds, science, education, people, "feelings, religion, health, places, animals, industry, food, computer, sports, transportation, travel, buildings, business, music
+            "min_width" : "0", # 最小の横幅
+            "min_height" : "0", # 最小の立幅
+            "colors" : "", # "grayscale", "transparent", "red", "orange", "yellow", "green", "turquoise", "blue", "lilac", "pink", "white", "gray", "black", "brown"
+            "editors_choice" : "false", # Editor's Choiceフラグが立ったものに限定したい場合はtrue
+            "safesearch" : "false", # セーフサーチ false or true
+            "order" : "popular", # 並び順（popular or latest）
+            "page" : page, # デフォルトは1、ページネーションのページ番号らしい
+            "per_page" : per_page, # デフォルトは20。1ページあたりの表示件数。3〜200まで
+            "callback" : "", # JSONPのコールバック関数を指定できるらしい
+            "pretty" : "false", # JSON出力をインデントするかどうか false or true
+        }
+
+        save_path = "./no_ecchi_img"
+        print("save_path:" + save_path)
+
+        req = requests.get(uri, params=prms, proxies=PROXY)
+        result = req.json()
+
+        total = result["totalHits"]
+        cnt = 1
+        cnt = fetch(result["hits"], save_path, cnt, total, limit)
+
+        page_num = math.ceil(total / per_page)
+
+        # ページネーション対応
+        if page_num > page:
+            for i in range(page + 1, page_num + 1, 1):
+                if limit and cnt > limit:
+                    break
+                prms["page"] = i
+                print(i)
+                req = requests.get(uri, params=prms)
+                result = req.json()
+                cnt = fetch(result["hits"], save_path, cnt, total, limit)
+
+    print("Download Finished.")
+
 if __name__=='__main__':
-    main()
+    no_ecchi()
