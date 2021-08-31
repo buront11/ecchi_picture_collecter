@@ -15,7 +15,7 @@ def check_hash(pre_hash, re_hash):
     return True
 
 def solve_deplicate():
-    data_list = pd.read_csv('./img/untreated_labels.csv')
+    data_list = pd.read_csv('./img/best_label.csv')
 
     files = natsorted(glob.glob('./img/*.jpg'))
     hashes = []
@@ -52,5 +52,24 @@ def solve_deplicate():
     data_list = data_list.drop(data_list.index[drop_index])
     data_list.to_csv('./img/labels.csv', index=False)
 
+def no_ecchi_labels():
+    files = natsorted(glob.glob('./no_ecchi_img/*.jpg'))
+
+    columns = ['path', 'label']
+    image_infos = []
+    for file in files:
+        image_infos.append([file] + [[0,0,0]])
+
+    df = pd.DataFrame(image_infos,columns=columns)
+    df.to_csv('./no_ecchi_img/untreated_labels.csv', index=False)
+
+def concat_df():
+    ecchi_df = pd.read_csv('./img/labels.csv')
+    no_ecchi_df = pd.read_csv('./no_ecchi_img/untreated_labels.csv')
+
+    df = pd.concat([ecchi_df, no_ecchi_df])
+    df.to_csv('./concat_label.csv', index=False)
+
 if __name__=='__main__':
     solve_deplicate()
+    concat_df()

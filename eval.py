@@ -33,7 +33,7 @@ def eval():
     print(vgg)
     vgg.classifier[6] = nn.Linear(in_features=4096, out_features=3)
 
-    model_path = './best_model'
+    model_path = './model/model_50'
     vgg.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 
     test_image_paths = natsorted(glob.glob('./test_img/*'))

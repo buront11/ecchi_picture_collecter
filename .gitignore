@@ -133,6 +133,7 @@ chromedriver
 
 # img data is big
 /img/*
+/no_ecchi_img/*
 /test_img/*
 
 launch.json
@@ -140,6 +141,7 @@ result.json
 .DS_Store
 .vscode
 
+/model/*
 *.png
 best_model
 log

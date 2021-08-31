@@ -28,6 +28,10 @@ PROXY = {
         'https':'http://proxy.nagaokaut.ac.jp:8080'
     }
 
+HEADER = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"
+        }
+
 class ImageTypeError(Exception):
     """画像のtypeが選択されていないことを知らせる例外クラス"""
     pass
@@ -37,7 +41,8 @@ def download(uri, save_path):
     proxy_support = urllib.request.ProxyHandler(PROXY)
     opener = urllib.request.build_opener(proxy_support)
     urllib.request.install_opener(opener)
-    img_data = urllib.request.urlopen(uri).read()
+    request = urllib.request.Request(uri, headers=HEADER) 
+    img_data = urllib.request.urlopen(request).read()
     uri_list = uri.split("/")
     file_name = uri_list[len(uri_list) - 1]
     with open(save_path + "/" + file_name, mode="wb") as f:
@@ -53,7 +58,7 @@ def fetch(data, save_path, cnt, total, limit):
         image = value["webformatURL"] # imageURL(オリジナルサイズ), webformatURL(640px), largeImageURL(1280px), fullHDURL(1920px)などがある。
         print(str(cnt) + "/" + str(total))
         cnt = cnt + 1
-        time.sleep(5)
+        time.sleep(3)
         download(image, save_path)
     return cnt
 
@@ -206,8 +211,9 @@ def no_ecchi():
         reader = csv.reader(f)
         keywords = [row for row in reader][0]
 
-    image_limit = 2500
+    image_limit = 800
     each_images = image_limit//len(keywords)
+    utils.mkdir('./no_ecchi_img', delete=True)
 
     for keyword in keywords:
 

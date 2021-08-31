@@ -85,7 +85,7 @@ def train():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Use device : {}'.format(device))
 
-    df = pd.read_csv('./img/labels.csv')
+    df = pd.read_csv('./concat_label.csv')
 
     train_df, valid_df = train_test_split(df, train_size=0.8)
 
@@ -103,10 +103,10 @@ def train():
         {'params': feature_param, 'lr': 1e-4},
         {'params': classifier_param, 'lr': 5e-4},
         {'params': change_param, 'lr': 1e-3},
-    ], lr=0.001, momentum=0.9, weight_decay=0.001)
+    ], momentum=0.9, weight_decay=0.0001)
     criterion = nn.BCEWithLogitsLoss()
 
-    epochs = 30
+    epochs = 100
     epoch_list = []
     train_loss_list = []
     train_acc_list = []
@@ -168,8 +168,12 @@ def train():
 
         if total_valid_loss < smallest_loss:
             smallest_loss = total_valid_loss
-            model_path = './best_model'
+            model_path = './model/best_model'
             torch.save(vgg.to('cpu').state_dict(), model_path)
+            vgg.to(device)
+
+        if epoch % epochs/10 == 0:
+            torch.save(vgg.to('cpu').state_dict(), './model/model_'+str(epoch))
             vgg.to(device)
 
         epoch_list.append(epoch)
