@@ -23,11 +23,6 @@ from selenium.common.exceptions import TimeoutException
 
 import utils
 
-PROXY = {
-        'http':'http://proxy.nagaokaut.ac.jp:8080',
-        'https':'http://proxy.nagaokaut.ac.jp:8080'
-    }
-
 HEADER = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"
         }
@@ -204,7 +199,7 @@ def ecchi():
     driver.quit()
 
 def no_ecchi():
-    api_key = "23096309-fb0bf9c1e4635b19578c1362c" #PixabayのAPIキーを記述
+    api_key = "api_key" #PixabayのAPIキーを記述
 
     print("Pixabayから画像をダウンロードするプログラム。")
     with open('no_ecchi_tag.csv', 'r') as f:
